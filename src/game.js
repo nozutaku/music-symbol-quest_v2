@@ -1,8 +1,5 @@
 (function (root) {
   const QUESTION_TYPES = ['meaning', 'reading', 'symbol'];
-  const BASE_POINTS = 100;
-  const COMBO_BONUS = 50;
-  const MAX_COMBO_BONUS_STEPS = 5;
 
   function createRng(seed) {
     let a = seed >>> 0;
@@ -70,67 +67,16 @@
     };
   }
 
-  function calcRank(correct, total) {
-    const ratio = total === 0 ? 0 : correct / total;
-    if (ratio >= 0.9) return 'S';
-    if (ratio >= 0.7) return 'A';
-    if (ratio >= 0.5) return 'B';
-    return 'C';
-  }
-
-  function createGame({ symbols, rounds = 10, lives = 3, rng = Math.random, choiceCount = 4 }) {
+  // 全員に同じ問題を出すため、シード付きの rng から決定的に問題一覧を作る
+  function buildQuestions({ symbols, rounds = 10, rng = Math.random, choiceCount = 4 }) {
     if (symbols.length < choiceCount) throw new Error('not enough symbols to build choices');
     const targets = shuffle(symbols, rng).slice(0, rounds);
-    const questions = targets.map((t) =>
+    return targets.map((t) =>
       buildQuestion(symbols, t, QUESTION_TYPES[Math.floor(rng() * QUESTION_TYPES.length)], rng, choiceCount)
     );
-    const state = { index: 0, score: 0, combo: 0, maxCombo: 0, correct: 0, lives, answered: false };
-
-    function isFinished() {
-      return state.lives <= 0 || state.index >= questions.length;
-    }
-
-    return {
-      get state() { return { ...state, total: questions.length, finished: isFinished() }; },
-      current() { return isFinished() ? null : questions[state.index]; },
-      answer(choiceIndex) {
-        const q = this.current();
-        if (!q) throw new Error('game is finished');
-        if (state.answered) throw new Error('already answered');
-        state.answered = true;
-        const isCorrect = choiceIndex === q.correctIndex;
-        let gained = 0;
-        if (isCorrect) {
-          gained = BASE_POINTS + COMBO_BONUS * Math.min(state.combo, MAX_COMBO_BONUS_STEPS);
-          state.score += gained;
-          state.combo += 1;
-          state.correct += 1;
-          state.maxCombo = Math.max(state.maxCombo, state.combo);
-        } else {
-          state.combo = 0;
-          state.lives -= 1;
-        }
-        return { isCorrect, gained, correctIndex: q.correctIndex, symbol: q.symbol };
-      },
-      next() {
-        if (!state.answered) throw new Error('answer the current question first');
-        state.index += 1;
-        state.answered = false;
-      },
-      result() {
-        return {
-          score: state.score,
-          correct: state.correct,
-          total: questions.length,
-          maxCombo: state.maxCombo,
-          cleared: state.lives > 0,
-          rank: calcRank(state.correct, questions.length),
-        };
-      },
-    };
   }
 
-  const api = { QUESTION_TYPES, createRng, shuffle, buildQuestion, calcRank, createGame };
+  const api = { QUESTION_TYPES, createRng, shuffle, buildQuestion, buildQuestions };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.MusicGame = api;
 })(typeof window !== 'undefined' ? window : globalThis);

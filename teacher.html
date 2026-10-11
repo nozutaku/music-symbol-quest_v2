@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>音楽記号クエスト 先生用</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="teacher">
+  <canvas id="confetti" aria-hidden="true"></canvas>
+  <main id="app" class="wide">
+    <!-- ゲーム作成 -->
+    <section id="screen-setup" class="screen narrow">
+      <h1>👩‍🏫 先生用<br><small>クラス対戦を始める</small></h1>
+      <p class="lead">出題する範囲を選んでください。<br>全員同時に出題し、1問10秒・問題間の待ち時間はありません。</p>
+      <label class="block">出題範囲
+        <select id="sel-category"></select>
+      </label>
+      <p id="setup-error" class="error" role="alert" hidden></p>
+      <p class="mode-note" id="mode-note" hidden></p>
+      <button id="btn-create" type="button" class="primary">ゲームを作成する</button>
+      <a class="link" href="index.html">生徒用の画面へ</a>
+    </section>
+
+    <!-- 進行ダッシュボード -->
+    <section id="screen-main" class="screen" hidden>
+      <div class="t-head">
+        <div class="t-code-box">
+          <p class="muted">エンターコード</p>
+          <div id="t-code" class="big-code" aria-live="polite"></div>
+          <p class="muted small">生徒は <strong id="t-url"></strong> を開いて入力</p>
+        </div>
+        <div class="t-stats">
+          <div class="stat"><span class="k">状態</span><span id="s-state" class="v">-</span></div>
+          <div class="stat"><span class="k">参加人数</span><span id="s-players" class="v">0人</span></div>
+          <div class="stat"><span class="k">現在の問題</span><span id="s-q" class="v">-</span></div>
+          <div class="stat"><span class="k">残り時間</span><span id="s-time" class="v">-</span></div>
+          <div class="stat"><span class="k">この問題の回答</span><span id="s-answered" class="v">-</span></div>
+          <div class="stat"><span class="k">クラスの正答率</span><span id="s-rate" class="v">-</span></div>
+        </div>
+      </div>
+
+      <button id="btn-action" type="button" class="primary action"></button>
+
+      <div id="result-area" hidden>
+        <h2>🏆 結果発表</h2>
+        <div id="rs-me" hidden></div>
+        <div id="rs-drum" class="drum" hidden>結果発表…</div>
+        <div id="rs-podium" class="podium" hidden></div>
+        <div id="rs-top10" hidden>
+          <h3>上位10人</h3>
+          <ol id="rs-list" class="rank-list"></ol>
+          <p id="rs-me-row" hidden></p>
+        </div>
+        <button id="btn-new" type="button" class="link">新しいゲームを作る</button>
+      </div>
+
+      <h2 class="table-title">参加者と回答状況</h2>
+      <div class="table-wrap">
+        <table id="t-table" class="progress-table"></table>
+      </div>
+      <p class="muted small legend">○ 正解　× 不正解　・ 未回答　／ 青い列が現在の問題です。</p>
+    </section>
+  </main>
+
+  <button id="btn-sound" type="button" class="sound-toggle" aria-pressed="false" aria-label="効果音">🔊</button>
+
+  <script src="src/firebase-config.js"></script>
+  <script src="src/symbols.js"></script>
+  <script src="src/game.js"></script>
+  <script src="src/battle.js"></script>
+  <script src="src/store.js"></script>
+  <script src="src/sound.js"></script>
+  <script src="src/confetti.js"></script>
+  <script src="src/common.js"></script>
+  <script src="src/results.js"></script>
+  <script src="src/teacher.js"></script>
+</body>
+</html>

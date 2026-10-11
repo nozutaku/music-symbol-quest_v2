@@ -20,6 +20,62 @@
         { freq: 150, start: 0.26, duration: 0.5 },
       ],
     },
+    // シンキングタイム: 1秒ごとの時計の音。残り3秒からは高く鋭くして焦らせる
+    tick: {
+      wave: 'triangle',
+      volume: 0.25,
+      notes: [{ freq: 1000, start: 0, duration: 0.07 }],
+    },
+    tickUrgent: {
+      wave: 'square',
+      volume: 0.12,
+      notes: [{ freq: 1800, start: 0, duration: 0.09 }],
+    },
+    // 時間切れ: 低く長いブザー
+    timeup: {
+      wave: 'sawtooth',
+      volume: 0.2,
+      hold: true,
+      notes: [{ freq: 110, start: 0, duration: 0.8 }],
+    },
+    // 開始前の「3・2・1」と「スタート」
+    countdown: {
+      wave: 'sine',
+      volume: 0.45,
+      notes: [{ freq: 660, start: 0, duration: 0.18 }],
+    },
+    go: {
+      wave: 'sine',
+      volume: 0.5,
+      notes: [{ freq: 1320, start: 0, duration: 0.6 }],
+    },
+    // 結果発表: 太鼓の連打 → 順位ごとのチャイム → ファンファーレ
+    drumroll: {
+      wave: 'triangle',
+      volume: 0.35,
+      notes: Array.from({ length: 16 }, (_, i) => ({ freq: 140, start: i * 0.075, duration: 0.07 })),
+    },
+    reveal: {
+      wave: 'sine',
+      volume: 0.5,
+      notes: [
+        { freq: 784, start: 0, duration: 0.18 },
+        { freq: 1046.5, start: 0.15, duration: 0.7 },
+      ],
+    },
+    fanfare: {
+      wave: 'square',
+      volume: 0.14,
+      notes: [
+        { freq: 523.25, start: 0, duration: 0.18 },
+        { freq: 523.25, start: 0.2, duration: 0.18 },
+        { freq: 523.25, start: 0.4, duration: 0.18 },
+        { freq: 659.25, start: 0.6, duration: 0.3 },
+        { freq: 783.99, start: 0.95, duration: 0.3 },
+        { freq: 1046.5, start: 1.3, duration: 0.9 },
+        { freq: 1318.51, start: 1.3, duration: 0.9 },
+      ],
+    },
   };
 
   // AudioContext を受け取りパターンを再生する。再生終了予定の秒数を返す。
@@ -54,6 +110,13 @@
     return {
       get muted() { return muted; },
       setMuted(v) { muted = Boolean(v); },
+      // ブラウザは操作前の音を禁止するため、最初のタップ時に呼んで再生可能にしておく
+      unlock() {
+        try {
+          if (!ctx) ctx = contextFactory();
+          if (ctx && ctx.state === 'suspended' && ctx.resume) ctx.resume();
+        } catch (e) { /* 音が出せない環境は無視 */ }
+      },
       play(name) {
         if (muted) return false;
         try {

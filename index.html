@@ -3,25 +3,45 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>音楽記号クエスト</title>
+  <title>音楽記号クエスト 対戦</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <canvas id="confetti" aria-hidden="true"></canvas>
   <main id="app">
-    <section id="screen-start" class="screen">
-      <h1>🎵 音楽記号クエスト</h1>
-      <p class="lead">記号の読み方と意味をクイズで覚えよう。<br>ライフは3つ。連続正解でボーナス！</p>
-      <div id="categories" class="categories"></div>
-      <p class="best">ベストスコア: <strong id="best-score">0</strong></p>
+    <!-- 参加: エンターコードと出席番号 -->
+    <section id="screen-home" class="screen">
+      <h1>🎵 音楽記号クエスト<br><small>クラス対戦</small></h1>
+      <p class="lead">先生が教えてくれた4桁のエンターコードと、<br>自分の出席番号（2桁）を入力しよう。</p>
+      <form id="entry-form" class="entry-form" autocomplete="off">
+        <label>エンターコード（4桁）
+          <input id="in-code" inputmode="numeric" maxlength="4" placeholder="0000" required>
+        </label>
+        <label>出席番号（2桁）
+          <input id="in-number" inputmode="numeric" maxlength="2" placeholder="05" required>
+        </label>
+        <p id="entry-error" class="error" role="alert" hidden></p>
+        <button type="submit" class="primary">参加する</button>
+      </form>
+      <p class="mode-note" id="mode-note" hidden></p>
     </section>
 
+    <!-- 待機 / カウントダウン / 終了後の待機 -->
+    <section id="screen-wait" class="screen" hidden>
+      <h2 id="wait-title"></h2>
+      <p id="wait-text" class="lead"></p>
+      <div id="wait-count" class="count" hidden></div>
+    </section>
+
+    <!-- 出題 -->
     <section id="screen-play" class="screen" hidden>
       <div class="status">
         <span id="st-progress"></span>
-        <span id="st-lives" aria-label="ライフ"></span>
+        <span id="st-me"></span>
         <span id="st-score"></span>
-        <span id="st-combo"></span>
       </div>
+      <div class="timer" aria-hidden="true"><div id="timer-bar" class="timer-bar"></div></div>
+      <div id="timer-text" class="timer-text" aria-live="off"></div>
       <div class="question">
         <div id="q-label" class="q-label"></div>
         <div id="q-main" class="q-main"></div>
@@ -30,25 +50,45 @@
       <div id="choices" class="choices"></div>
       <div id="feedback" class="feedback" hidden>
         <p id="fb-text"></p>
-        <p id="fb-detail"></p>
-        <button id="btn-next" type="button">次へ ▶</button>
+        <div class="answer-box">
+          <span class="answer-label">正解</span>
+          <div id="fb-answer" class="answer-main"></div>
+          <div id="fb-note" class="answer-note"></div>
+        </div>
       </div>
     </section>
 
+    <!-- 結果発表 -->
     <section id="screen-result" class="screen" hidden>
-      <h2 id="rs-title"></h2>
-      <div id="rs-rank" class="rank"></div>
-      <p id="rs-detail"></p>
-      <p id="rs-new" class="new-record" hidden>🎉 ベストスコア更新！</p>
-      <button id="btn-retry" type="button">もう一度</button>
-      <button id="btn-menu" type="button" class="secondary">メニューへ</button>
+      <h2>🏆 結果発表</h2>
+      <div id="rs-me" class="me-card" hidden></div>
+      <div id="rs-drum" class="drum" hidden>結果発表…</div>
+      <div id="rs-podium" class="podium" hidden></div>
+      <div id="rs-top10" hidden>
+        <h3>上位10人</h3>
+        <ol id="rs-list" class="rank-list"></ol>
+        <p id="rs-me-row" class="rank-me-row" hidden></p>
+      </div>
+      <div id="rs-review" class="review" hidden>
+        <h3 id="rv-title"></h3>
+        <ol id="rv-list" class="review-list"></ol>
+      </div>
+      <button id="btn-home" type="button" class="link" hidden>はじめにもどる</button>
     </section>
   </main>
+
+  <button id="btn-sound" type="button" class="sound-toggle" aria-pressed="false" aria-label="効果音">🔊</button>
+
+  <script src="src/firebase-config.js"></script>
   <script src="src/symbols.js"></script>
   <script src="src/glyphs.js"></script>
-  <button id="btn-sound" type="button" class="sound-toggle" aria-pressed="false" aria-label="効果音">🔊</button>
   <script src="src/game.js"></script>
+  <script src="src/battle.js"></script>
+  <script src="src/store.js"></script>
   <script src="src/sound.js"></script>
-  <script src="src/app.js"></script>
+  <script src="src/confetti.js"></script>
+  <script src="src/common.js"></script>
+  <script src="src/results.js"></script>
+  <script src="src/student.js"></script>
 </body>
 </html>
